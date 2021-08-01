@@ -1,0 +1,19 @@
+{
+    "name": "janandbu/alicloud-iot-framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jan Ng",
+            "email": "janandbu@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "algorithm\\": "src/Algorithm",
+            "alicloudIotFramework\\": "src/alicloudIotFramework"
+        }
+    }
+}
