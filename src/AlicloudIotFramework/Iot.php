@@ -2,22 +2,41 @@
 namespace alicloudIotFramework;
 
 class Iot{
-    private static $appKey = "";
-    private static $appSecret = "";
-    private static $Id = "";
-    private static $token;
-    private static $expireIn;
-    static function init($appKey,$appSecret,$projectId){
+    private static $appKey;
+    private static $appSecret;
+    private static $Id;
+    private static $productKey;
+
+    static function init($appKey,$appSecret,$projectId,$productKey){
         self::$appKey = $appKey;
         self::$appSecret = $appSecret;
         self::$Id = $projectId;
+        self::$productKey = $productKey;
         self::getToken();
     }
+    static function getUserList($offset=0,$count=50){
+        return self::request('/cloud/account/queryIdentityByPage','1.0.4',["offset"=>intval($offset),"count"=>intval($count)]);
+    }
+    static function getUserBindDevice($identityId){
+        return self::request('/cloud/device/queryByUser','1.0.6',["identityId"=>$identityId,"openIdAppKey"=>self::$appKey]);
+    }
+    static function getDeviceAttribute($iotId){
+        return self::request('/cloud/thing/properties/get','1.0.2',["iotId"=>$iotId,'productKey'=>self::$productKey]);
+    }
+    static function getDeviceInfo($iotId){
+        return self::request('/cloud/thing/info/get','1.0.2',["iotId"=>$iotId,'productKey'=>self::$productKey]);
+    }
+    static function sendMessageToDevice($iotId,$messageContent){
+        return self::request('/living/cloud/device/customizedmessage/notify','1.0.0',["iotId"=>$iotId,'productKey'=>self::$productKey,'messageContent'=>$messageContent]);
+    }
+    static function sendServeToDevice($iotId,$deviceName,$identifier,$args){
+        return self::request('/cloud/thing/service/invoke','1.0.2',["iotId"=>$iotId,'deviceName'=>$deviceName,'productKey'=>self::$productKey,'identifier'=>$identifier,'args'=>$args]);
+    }
+    static function setDevice($iotId,$deviceName,$item){
+        return self::request('/cloud/thing/properties/set','1.0.2',["iotId"=>$iotId,'deviceName'=>$deviceName,'productKey'=>self::$productKey,'items'=>$item]);
+    }
     static function getToken(){
-        return "123";
-        ini_set('memory_limit', '256M');
-
-        if($_SESSION['token']){
+        if($_SESSION['token']['cloudToken']&&$_SESSION['token']['expireIn']>=time()){
             return $_SESSION['token']['cloudToken'];
         }else{
             $data =  self::request('/cloud/token','1.0.1',['grantType'=>"project","res"=>"a123umecKcfV80WT"]);
@@ -28,11 +47,7 @@ class Iot{
     }
     static function request($path,$version,$param) {
         $host      = "https://api.link.aliyun.com";
-        $appKey    = self::$appKey;
-        $appSecret = self::$appSecret;
-
-        $token  = self::getToken();
-        $request = new HttpRequest($host, $path, HttpMethod::POST, $appKey, $appSecret);
+        $request = new HttpRequest($host, $path, HttpMethod::POST, self::$appKey, self::$appSecret);
         //设置API版本和参数，其中，res为授权的资源ID。grantType为project时，res的值为project的ID。
         $bodyArr = [];
         $bodyArr['id'] = self::$Id;
@@ -40,20 +55,10 @@ class Iot{
         if($path=='/cloud/token'){
             $bodyArr['request'] = array('apiVer'=>$version);
         }else{
-            $bodyArr['request'] = array('apiVer'=>$version,"cloudToken"=>$token);
+            $bodyArr['request'] = array('apiVer'=>$version,"cloudToken"=>self::getToken());
         }
-        // if(!empty($param)){
         $bodyArr['params'] = $param;
-        // }else{
-        // $bodyArr['params'] = "";
-        // }
-
-        // print_r($bodyArr);
-        // exit;
         $body = json_encode($bodyArr);
-
-
-
         //设定Content-Type
         $request->setHeader(HttpHeader::HTTP_HEADER_CONTENT_TYPE,
             ContentType::CONTENT_TYPE_JSON);
@@ -72,7 +77,7 @@ class Iot{
         $request->setSignHeader(SystemHeader::X_CA_TIMESTAMP);
 
         $response = HttpClient::execute($request);
-
+        print_r($response->getBody());
         $responseData = json_decode($response->getBody(),1);
         return $responseData['data'];
     }
