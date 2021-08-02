@@ -8,6 +8,7 @@
             "email": "janandbu@hotmail.com"
         }
     ],
+    "version": "1.1.1",
     "minimum-stability": "stable",
     "require": {},
     "autoload": {
