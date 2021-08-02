@@ -12,6 +12,7 @@ class Iot{
         self::$appSecret = $appSecret;
         self::$Id = $projectId;
         self::$productKey = $productKey;
+        session_start();
         self::getToken();
     }
     static function getUserList($offset=0,$count=50){
@@ -36,8 +37,10 @@ class Iot{
         return self::request('/cloud/thing/properties/set','1.0.2',["iotId"=>$iotId,'deviceName'=>$deviceName,'productKey'=>self::$productKey,'items'=>$item]);
     }
     static function getToken(){
-        if($_SESSION['token']['cloudToken']&&$_SESSION['token']['expireIn']>=time()){
-            return $_SESSION['token']['cloudToken'];
+        if(isset($_SESSION['token'])){
+            if($_SESSION['token']['cloudToken']&&$_SESSION['token']['expireIn']>=time()){
+                return $_SESSION['token']['cloudToken'];
+            }
         }else{
             $data =  self::request('/cloud/token','1.0.1',['grantType'=>"project","res"=>"a123umecKcfV80WT"]);
             $_SESSION['token'] = $data;
