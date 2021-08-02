@@ -1,5 +1,6 @@
 <?php
 namespace alicloudIotFramework;
+session_start();
 
 class Iot{
     private static $appKey;
@@ -7,16 +8,19 @@ class Iot{
     private static $Id;
     private static $productKey;
 
+
     static function init($appKey,$appSecret,$projectId,$productKey){
         self::$appKey = $appKey;
         self::$appSecret = $appSecret;
         self::$Id = $projectId;
         self::$productKey = $productKey;
-        session_start();
         self::getToken();
     }
     static function getUserList($offset=0,$count=50){
         return self::request('/cloud/account/queryIdentityByPage','1.0.4',["offset"=>intval($offset),"count"=>intval($count)]);
+    }
+    static function getUser($identityId){
+        return self::request('/cloud/account/getByIdentityId','1.0.4',["identityId"=>$identityId,"openIdAppKey"=>self::$appKey]);
     }
     static function getUserBindDevice($identityId){
         return self::request('/cloud/device/queryByUser','1.0.6',["identityId"=>$identityId,"openIdAppKey"=>self::$appKey]);
@@ -36,17 +40,22 @@ class Iot{
     static function setDevice($iotId,$deviceName,$item){
         return self::request('/cloud/thing/properties/set','1.0.2',["iotId"=>$iotId,'deviceName'=>$deviceName,'productKey'=>self::$productKey,'items'=>$item]);
     }
-    static function getToken(){
-        if(isset($_SESSION['token'])){
-            if($_SESSION['token']['cloudToken']&&$_SESSION['token']['expireIn']>=time()){
-                return $_SESSION['token']['cloudToken'];
-            }
-        }else{
+    static function getToken($reFresh=false){
+        if($reFresh){
             $data =  self::request('/cloud/token','1.0.1',['grantType'=>"project","res"=>"a123umecKcfV80WT"]);
             $_SESSION['token'] = $data;
             $_SESSION['token']['expireIn'] = time()+$_SESSION['token']['expireIn'];
             return $_SESSION['token']['cloudToken'];
         }
+        if(isset($_SESSION['token'])){
+            if($_SESSION['token']['cloudToken']&&$_SESSION['token']['expireIn']>=time()){
+                return $_SESSION['token']['cloudToken'];
+            }
+        }
+        $data =  self::request('/cloud/token','1.0.1',['grantType'=>"project","res"=>"a123umecKcfV80WT"]);
+        $_SESSION['token'] = $data;
+        $_SESSION['token']['expireIn'] = time()+$_SESSION['token']['expireIn'];
+        return $_SESSION['token']['cloudToken'];
     }
     static function request($path,$version,$param) {
         $host      = "https://api.link.aliyun.com";
@@ -80,8 +89,14 @@ class Iot{
         $request->setSignHeader(SystemHeader::X_CA_TIMESTAMP);
 
         $response = HttpClient::execute($request);
-        print_r($response->getBody());
+
         $responseData = json_decode($response->getBody(),1);
+        if($responseData['code']==20017){
+            self::getToken(true);
+            self::request($path,$version,$param);
+            return;
+        }
+//        print_r($responseData);
         return $responseData['data'];
     }
 
