@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 
 /**
  * HTTP方法常量

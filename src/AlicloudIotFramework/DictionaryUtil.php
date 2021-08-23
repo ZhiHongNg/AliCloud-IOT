@@ -18,7 +18,7 @@
  * under the License.
  */
 
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 
 /**
  * 集合对象的元素处理

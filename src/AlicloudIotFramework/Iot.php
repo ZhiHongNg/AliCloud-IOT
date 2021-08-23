@@ -1,5 +1,5 @@
 <?php
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 session_start();
 
 class Iot{

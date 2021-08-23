@@ -1,5 +1,5 @@
 <?php
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,7 +19,7 @@ namespace alicloudIotFramework;
  * specific language governing permissions and limitations
  * under the License.
  */
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 
 /**
 *httpClient¶ÔÏó

@@ -18,7 +18,7 @@
  * under the License.
  */
 
-namespace alicloudIotFramework;
+namespace AlicloudIotFramework;
 
 class MessageDigestUtil
 {
