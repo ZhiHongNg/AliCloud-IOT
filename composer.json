@@ -14,7 +14,7 @@
     "autoload": {
         "psr-4": {
             "algorithm\\": "src/Algorithm",
-            "alicloudIotFramework\\": "src/alicloudIotFramework"
+            "alicloudIotFramework\\": "src/AlicloudIotFramework"
         }
     }
 }
