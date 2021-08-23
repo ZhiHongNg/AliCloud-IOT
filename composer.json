@@ -13,8 +13,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "algorithm\\": "src/Algorithm",
-            "alicloudIotFramework\\": "src/AlicloudIotFramework"
+            "alicloudIotFramework\\": "src/AlicloudIotFramework/"
         }
     }
 }
